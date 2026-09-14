@@ -1,0 +1,58 @@
+RewriteEngine On
+
+# Pass Authorization header to PHP and route /api/* to PHP files
+RewriteRule ^api/auth/login$ api/auth/login.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/auth/register$ api/auth/register.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/auth/logout$ api/auth/logout.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/auth/me$ api/auth/me.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/users$ api/users/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/users/([0-9]+)$ api/users/show.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/users/([0-9]+)/update$ api/users/update.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/users/([0-9]+)/delete$ api/users/delete.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/users/([0-9]+)/avatar$ api/users/avatar.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/businesses$ api/businesses/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/businesses/([0-9]+)$ api/businesses/show.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/businesses/([0-9]+)/image$ api/businesses/image.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/destinations$ api/destinations/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/destinations/([0-9]+)$ api/destinations/show.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/bookings$ api/bookings/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/bookings/([0-9]+)/update$ api/bookings/update.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/bookings/([0-9]+)/delete$ api/bookings/delete.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/reviews$ api/reviews/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/promotions$ api/promotions/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/promotions/([0-9]+)$ api/promotions/show.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/promotions/([0-9]+)/image$ api/promotions/image.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/chat$ api/chat/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/chat/([0-9]+)$ api/chat/show.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/dashboard$ api/dashboard/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos$ api/videos/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/upload$ api/videos/upload.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/sounds$ api/videos/sounds.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/stats$ api/videos/stats.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/report$ api/videos/report.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/([0-9]+)$ api/videos/show.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/([0-9]+)/like$ api/videos/like.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/([0-9]+)/save$ api/videos/save.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/([0-9]+)/comments$ api/videos/comments.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/([0-9]+)/view$ api/videos/show.php?id=$1&view=1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/videos/([0-9]+)/share$ api/videos/show.php?id=$1&share=1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/stats$ api/stats.php [QSA,END]
+RewriteRule ^api/follow$ api/follow/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Cancellation system
+RewriteRule ^api/cancellations/policy$ api/cancellations/index.php?policy=1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/cancellations/requests$ api/cancellations/index.php [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^api/cancellations/requests/([0-9]+)$ api/cancellations/handle.php?id=$1 [QSA,END,E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Allow larger uploads for the video feed (mod_php only; see php-video.ini for Docker)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 30M
+    php_value post_max_size 32M
+    php_value max_execution_time 120
+</IfModule>
+
+# SPA fallback: serve index.html for all non-API, non-file routes
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]

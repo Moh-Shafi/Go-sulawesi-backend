@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gosulawesi-php
+    ports:
+      - "8082:80"
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: gosulawesi
+      DB_USER: gosulawesi_user
+      DB_PASS: gosulawesi_pass
+      TOKEN_SECRET: ${TOKEN_SECRET:-dev_secret_change_in_production}
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:5173}
+
+  db:
+    image: mysql:8.0
+    container_name: gosulawesi-db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: gosulawesi
+      MYSQL_USER: gosulawesi_user
+      MYSQL_PASSWORD: gosulawesi_pass
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: gosulawesi-pma
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+    depends_on:
+      - db
+
+volumes:
+  db_data:

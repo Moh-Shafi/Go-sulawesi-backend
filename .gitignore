@@ -1,0 +1,7 @@
+﻿.env.php
+.dev_token_secret
+uploads/*
+!uploads/.gitkeep
+sounds/*
+!sounds/.gitkeep
+*.log

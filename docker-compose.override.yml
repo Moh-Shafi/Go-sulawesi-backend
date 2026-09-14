@@ -1,0 +1,7 @@
+services:
+  db:
+    ports: !override
+      - "3308:3306"
+  phpmyadmin:
+    ports: !override
+      - "8083:80"
