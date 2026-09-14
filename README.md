@@ -24,8 +24,8 @@ It provides REST APIs for authentication, businesses, destinations, bookings, re
 * [Technology Stack](#-technology-stack)
 * [User Roles](#-user-roles)
 * [Core Features](#-core-features)
-* [API Structure](#-api-structure)
-* [Security](#-production-security--white-hat-audit)
+* [API Structure](#-core-api-structure)
+* [Security](#-production-security--security-review)
 * [Database](#-database)
 * [Local Development](#-local-development)
 * [Docker Deployment](#-docker-deployment)
@@ -81,8 +81,8 @@ The backend follows a modular API architecture with authentication middleware, r
 * **Modular API structure** — resources are separated into dedicated endpoint directories.
 * **Prepared SQL statements** — database queries use parameter binding.
 * **Server-side authorization** — sensitive operations are protected at the API layer.
-* **Cookie-based authentication** — authentication tokens can be delivered through secure `HttpOnly` cookies.
-* **Production-ready deployment** — supports Docker-based development and Hostinger/VPS deployment.
+* **Cookie-based authentication** — authentication tokens are delivered through secure `HttpOnly` cookies in production.
+* **Production deployment** — supports Docker-based development and Hostinger VPS deployment.
 
 ---
 
@@ -145,7 +145,7 @@ Administrators can:
 * Access administrative statistics
 * Manage sensitive platform operations
 
-> Authorization is enforced on the backend rather than relying only on frontend route protection.
+> Authorization is enforced at the backend/API layer rather than relying only on frontend route protection.
 
 ---
 
@@ -282,11 +282,11 @@ POST /api/reviews/
 
 ---
 
-# 🛡️ Production Security & White-Hat Audit
+# 🛡️ Production Security & Security Review
 
 Security was a core part of the GoSulawesi development process.
 
-The platform underwent a **White-Hat security audit** covering:
+The platform underwent a **security review** covering:
 
 * Authentication
 * Authorization
@@ -309,7 +309,7 @@ The platform underwent a **White-Hat security audit** covering:
 | **Access Control**   | Server-side RBAC for `tourist`, `local`, and `admin`     |
 | **Authorization**    | Role and ownership verification                          |
 | **SQL Injection**    | PDO prepared statements with bound parameters            |
-| **CORS**             | Origin allowlist                                         |
+| **CORS**             | Configured origin allowlist                              |
 | **Brute Force**      | Login rate limiting                                      |
 | **File Uploads**     | MIME validation, size limits, server-generated filenames |
 | **Review Integrity** | Completed-booking verification                           |
@@ -318,11 +318,11 @@ The platform underwent a **White-Hat security audit** covering:
 
 ---
 
-## 🧪 White-Hat Audit Results
+## 🧪 Security Review Results
 
-The audit identified **15 security findings** across different severity levels.
+The security review identified **15 application-level findings** across different severity levels.
 
-### Audit Summary
+### Review Summary
 
 | Severity            | Findings |    Status    |
 | :------------------ | :------: | :----------: |
@@ -332,13 +332,13 @@ The audit identified **15 security findings** across different severity levels.
 | 🟢 Low              |     3    | ✅ Remediated |
 | ✅ Additional Checks |     9    |    Passed    |
 
-**Current status: All identified findings have been remediated according to the project's audit and verification records.**
+**Current status:** All documented application-level findings have been remediated and verified during development.
 
 ---
 
 ## 🔧 Key Security Remediations
 
-### 1. Business Status Privilege Escalation
+### 1. Business Status Authorization
 
 **Issue:**
 Authenticated users could previously attempt to modify business approval status without sufficient authorization.
@@ -347,7 +347,7 @@ Authenticated users could previously attempt to modify business approval status 
 
 * Business status changes require appropriate authorization.
 * Administrative operations require the `admin` role.
-* Business owners are verified for permitted operations.
+* Business ownership is verified for permitted operations.
 
 **Status:** ✅ Remediated
 
@@ -361,8 +361,8 @@ Authentication secrets were previously stored directly in source configuration.
 **Remediation:**
 
 * Token secrets are loaded through environment-based configuration.
-* Production deployments should provide their own secret values.
-* Secrets are not intended to be committed to the repository.
+* Production deployments provide their own secret values.
+* Secrets are excluded from version control.
 
 **Status:** ✅ Remediated
 
@@ -377,7 +377,7 @@ Authentication tokens were previously stored in browser `localStorage`.
 
 * Authentication moved to `HttpOnly` cookies.
 * Cookies use appropriate security attributes.
-* Frontend requests use credentialed requests where required.
+* Frontend requests use credentials where required.
 * Logout clears the authentication cookie.
 
 **Status:** ✅ Remediated
@@ -392,7 +392,7 @@ Business owner email information could previously be exposed through public busi
 **Remediation:**
 
 * Private owner information was removed from normal public responses.
-* Sensitive information is restricted to authorized administrative contexts.
+* Sensitive information is restricted to authorized contexts.
 
 **Status:** ✅ Remediated
 
@@ -407,7 +407,7 @@ Tourists could previously attempt to submit or modify privileged booking statuse
 
 * New tourist bookings default to `pending`.
 * Tourists cannot directly modify privileged booking status.
-* Business/admin roles control appropriate booking workflow transitions.
+* Business and admin roles control appropriate booking workflow transitions.
 
 **Status:** ✅ Remediated
 
@@ -671,11 +671,8 @@ Internet
 Hostinger VPS
    │
    ├── Apache
-   │
    ├── PHP
-   │
    ├── GoSulawesi REST API
-   │
    └── MySQL Database
 ```
 
@@ -904,7 +901,6 @@ The platform was developed with a focus on:
 * Digital marketplace infrastructure
 * Secure API development
 * Role-based workflows
-* Scalable backend architecture
 * Real-world deployment
 
 ---
@@ -919,7 +915,7 @@ https://github.com/Moh-Shafi/Go-sulawesi-backend
 
 https://github.com/Moh-Shafi/Go-sulawesi-frontend
 
-### Monorepo / Main Project
+### Main Project
 
 https://github.com/Moh-Shafi/Go-sulawesi
 
